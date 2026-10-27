@@ -1,0 +1,94 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SICS Login</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-box {
+            background: white;
+            padding: 30px;
+            width: 300px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ccc;
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #8c1515;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #error {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-box">
+        <h2>SICS Attendance System</h2>
+
+        <form id="loginForm">
+            <input type="text" id="username"
+                   placeholder="Username" required>
+
+            <input type="password" id="password"
+                   placeholder="Password" required>
+
+            <button type="submit">Login</button>
+            <p id="error"></p>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("loginForm").addEventListener("submit",
+            function(event) {
+                event.preventDefault();
+
+                const username =
+                    document.getElementById("username").value;
+
+                const password =
+                    document.getElementById("password").value;
+
+                if (username === "sics@2" &&
+                    password === "sics@i2it") {
+
+                    window.location.href = "attendance.html";
+
+                } else {
+                    document.getElementById("error").textContent =
+                        "Invalid username or password!";
+                }
+            }
+        );
+    </script>
+
+</body>
+</html>

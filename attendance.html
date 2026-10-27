@@ -1,0 +1,715 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Private Class Attendance System</title>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+header {
+    background: #8c1515;
+    color: white;
+    text-align: center;
+    padding: 25px 10px;
+}
+
+header h1 {
+    margin: 0 0 8px;
+}
+
+main {
+    max-width: 1100px;
+    margin: 25px auto;
+    padding: 0 15px;
+}
+
+.card {
+    background: white;
+    padding: 22px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px #0000000d;
+}
+
+h2 {
+    color: #8c1515;
+    margin-top: 0;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+
+input, select {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    font-size: 15px;
+}
+
+button {
+    border: none;
+    border-radius: 7px;
+    padding: 12px 17px;
+    cursor: pointer;
+    font-weight: bold;
+    margin: 5px 5px 5px 0;
+}
+
+.primary {
+    background: #2563eb;
+    color: white;
+}
+
+.success {
+    background: #15803d;
+    color: white;
+}
+
+.secondary {
+    background: #e2e8f0;
+    color: #8c1515;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+.details {
+    display: none;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+}
+
+.details p {
+    margin: 10px 0;
+}
+
+.radio-group {
+    display: flex;
+    gap: 25px;
+    margin: 18px 0;
+    flex-wrap: wrap;
+}
+
+.radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.radio-group input {
+    width: auto;
+}
+
+.message {
+    margin-top: 12px;
+    font-weight: bold;
+}
+
+.table-wrap {
+    overflow-x: auto;
+    margin-top: 18px;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 650px;
+}
+
+th, td {
+    padding: 12px;
+    border: 1px solid #dbe3ef;
+    text-align: left;
+    white-space: nowrap;
+}
+
+th {
+    background: #17365d;
+    color: white;
+}
+
+.present {
+    color: #15803d;
+    font-weight: bold;
+}
+
+.absent {
+    color: #dc2626;
+    font-weight: bold;
+}
+
+.note {
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    color: #64748b;
+}
+
+@media (max-width: 600px) {
+    .card {
+        padding: 15px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Private Class Attendance System</h1>
+    <p>Student Management and Daily Attendance</p>
+</header>
+
+<main>
+
+    <!-- Add Student -->
+    <section class="card">
+        <h2>1. Add Student</h2>
+
+        <form id="studentForm">
+            <div class="grid">
+
+                <div>
+                    <label for="index">Index Number</label>
+                    <input id="index" required>
+                </div>
+
+                <div>
+                    <label for="name">Student Name</label>
+                    <input id="name" required>
+                </div>
+
+                <div>
+                    <label for="grade">Grade</label>
+                    <select id="grade" required>
+                        <option value="">Select Grade</option>
+                        <option>Grade 6</option>
+                        <option>Grade 7</option>
+                        <option>Grade 8</option>
+                        <option>Grade 9</option>
+                        <option>Grade 10</option>
+                        <option>Grade 11</option>
+                        <option>Grade 12</option>
+                        <option>Grade 13</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <br>
+            <button class="primary" type="submit">
+                Save Student
+            </button>
+        </form>
+
+        <p id="studentMessage" class="message"></p>
+    </section>
+
+
+    <!-- Search and Attendance -->
+    <section class="card">
+        <h2>2. Search Student and Mark Attendance</h2>
+
+        <div class="grid">
+            <div>
+                <label for="searchIndex">Index Number</label>
+                <input id="searchIndex" placeholder="Enter index number">
+            </div>
+
+            <div>
+                <label for="attendanceDate">Attendance Date</label>
+                <input type="date" id="attendanceDate">
+            </div>
+        </div>
+
+        <br>
+
+        <button class="primary" id="searchButton">
+            Search Student
+        </button>
+
+        <p id="searchMessage" class="message"></p>
+
+        <div id="studentDetails" class="details">
+            <p><b>Index Number:</b> <span id="showIndex"></span></p>
+            <p><b>Student Name:</b> <span id="showName"></span></p>
+            <p><b>Grade:</b> <span id="showGrade"></span></p>
+
+            <h3>Attendance</h3>
+
+            <div class="radio-group">
+                <label>
+                    <input type="radio" name="attendance" value="1">
+                    1 - Present
+                </label>
+
+                <label>
+                    <input type="radio" name="attendance" value="0">
+                    0 - Absent
+                </label>
+            </div>
+
+            <button class="success" id="saveAttendance">
+                Save Attendance
+            </button>
+        </div>
+    </section>
+
+
+    <!-- Attendance Report -->
+    <section class="card">
+        <h2>3. Attendance Report</h2>
+
+        <div class="grid">
+            <div>
+                <label for="reportDate">Select Date</label>
+                <input type="date" id="reportDate">
+            </div>
+
+            <div>
+                <label for="filterGrade">Filter by Grade</label>
+                <select id="filterGrade">
+                    <option value="all">All Grades</option>
+                    <option>Grade 6</option>
+                    <option>Grade 7</option>
+                    <option>Grade 8</option>
+                    <option>Grade 9</option>
+                    <option>Grade 10</option>
+                    <option>Grade 11</option>
+                    <option>Grade 12</option>
+                    <option>Grade 13</option>
+                </select>
+            </div>
+        </div>
+
+        <br>
+
+        <button class="secondary" id="refreshReport">
+            Refresh Report
+        </button>
+
+        <button class="success" id="downloadExcel">
+            Download Complete Excel Report
+        </button>
+
+        <p class="note">
+            Excel file එකේ සියලුම ළමයින්ගේ attendance එක එකම sheet
+            එකක දිනය අනුව වෙන වෙනම columns වල පෙන්වයි.
+            Attendance mark කර නැති දිනවල cells හිස්ව පවතී.
+        </p>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Index Number</th>
+                        <th>Student Name</th>
+                        <th>Grade</th>
+                        <th>Date</th>
+                        <th>Attendance</th>
+                    </tr>
+                </thead>
+
+                <tbody id="reportBody"></tbody>
+            </table>
+        </div>
+
+        <p id="reportMessage" class="message"></p>
+    </section>
+
+</main>
+
+<footer>
+    Private Class Attendance Management System
+</footer>
+
+
+<script>
+"use strict";
+
+// Save data in this browser
+const STUDENT_KEY = "privateClass_students";
+const ATTENDANCE_KEY = "privateClass_attendance";
+
+let currentStudent = null;
+
+const $ = id => document.getElementById(id);
+
+// Local date: avoids UTC date shifting
+function getToday() {
+    const d = new Date();
+    return d.getFullYear() + "-" +
+        String(d.getMonth() + 1).padStart(2, "0") + "-" +
+        String(d.getDate()).padStart(2, "0");
+}
+
+$("attendanceDate").value = getToday();
+$("reportDate").value = getToday();
+
+function getStudents() {
+    try {
+        return JSON.parse(localStorage.getItem(STUDENT_KEY)) || [];
+    } catch {
+        return [];
+    }
+}
+
+function getAttendance() {
+    try {
+        return JSON.parse(localStorage.getItem(ATTENDANCE_KEY)) || {};
+    } catch {
+        return {};
+    }
+}
+
+function saveData(key, data) {
+    try {
+        localStorage.setItem(key, JSON.stringify(data));
+        return true;
+    } catch (error) {
+        alert("Data save කරන්න බැහැ. Excel backup එකක් ලබාගන්න.");
+        return false;
+    }
+}
+
+function attendanceKey(index, date) {
+    return date + "__" + index;
+}
+
+function showMessage(id, message, color) {
+    $(id).textContent = message;
+    $(id).style.color = color;
+}
+
+
+// ADD STUDENT
+$("studentForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const index = $("index").value.trim();
+    const name = $("name").value.trim();
+    const grade = $("grade").value;
+
+    if (!index || !name || !grade) {
+        showMessage("studentMessage", "Fill in all details.", "red");
+        return;
+    }
+
+    const list = getStudents();
+
+    const exists = list.some(
+        student => student.index.toLowerCase() === index.toLowerCase()
+    );
+
+    if (exists) {
+        showMessage(
+            "studentMessage",
+            "This index number already exists.",
+            "red"
+        );
+        return;
+    }
+
+    list.push({ index, name, grade });
+
+    if (!saveData(STUDENT_KEY, list)) return;
+
+    $("studentForm").reset();
+
+    showMessage(
+        "studentMessage",
+        "Student saved successfully.",
+        "green"
+    );
+
+    renderReport();
+});
+
+
+// SEARCH STUDENT
+function searchStudent() {
+    const index = $("searchIndex").value.trim();
+
+    if (!index) {
+        showMessage("searchMessage", "Enter an index number.", "red");
+        return;
+    }
+
+    const student = getStudents().find(
+        s => s.index.toLowerCase() === index.toLowerCase()
+    );
+
+    if (!student) {
+        currentStudent = null;
+        $("studentDetails").style.display = "none";
+
+        showMessage(
+            "searchMessage",
+            "Student not found.",
+            "red"
+        );
+        return;
+    }
+
+    currentStudent = student;
+
+    $("showIndex").textContent = student.index;
+    $("showName").textContent = student.name;
+    $("showGrade").textContent = student.grade;
+
+    $("studentDetails").style.display = "block";
+
+    const date = $("attendanceDate").value;
+    const saved = getAttendance()[attendanceKey(student.index, date)];
+
+    document.querySelectorAll('input[name="attendance"]').forEach(radio => {
+        radio.checked = saved !== undefined && radio.value === saved;
+    });
+
+    showMessage("searchMessage", "Student found.", "green");
+}
+
+$("searchButton").addEventListener("click", searchStudent);
+
+$("searchIndex").addEventListener("keydown", function(event) {
+    if (event.key === "Enter") searchStudent();
+});
+
+$("attendanceDate").addEventListener("change", function() {
+    if (currentStudent) searchStudent();
+});
+
+
+// SAVE ATTENDANCE
+$("saveAttendance").addEventListener("click", function() {
+    if (!currentStudent) {
+        showMessage("searchMessage", "Search a student first.", "red");
+        return;
+    }
+
+    const date = $("attendanceDate").value;
+    const selected = document.querySelector(
+        'input[name="attendance"]:checked'
+    );
+
+    if (!date) {
+        showMessage("searchMessage", "Select a date.", "red");
+        return;
+    }
+
+    if (!selected) {
+        showMessage(
+            "searchMessage",
+            "Select 1 (Present) or 0 (Absent).",
+            "red"
+        );
+        return;
+    }
+
+    const records = getAttendance();
+
+    records[attendanceKey(currentStudent.index, date)] = selected.value;
+
+    if (!saveData(ATTENDANCE_KEY, records)) return;
+
+    showMessage(
+        "searchMessage",
+        "Attendance saved successfully.",
+        "green"
+    );
+
+    renderReport();
+});
+
+
+// DAILY REPORT TABLE
+function renderReport() {
+    const date = $("reportDate").value || getToday();
+    const filter = $("filterGrade").value;
+    const records = getAttendance();
+
+    const list = getStudents().filter(student =>
+        filter === "all" || student.grade === filter
+    );
+
+    const body = $("reportBody");
+    body.innerHTML = "";
+
+    if (list.length === 0) {
+        body.innerHTML =
+            '<tr><td colspan="5">No students found.</td></tr>';
+        return;
+    }
+
+    list.forEach(student => {
+        const value = records[attendanceKey(student.index, date)];
+
+        let status = "Not Marked";
+        let cssClass = "";
+
+        if (value === "1") {
+            status = "1 - Present";
+            cssClass = "present";
+        } else if (value === "0") {
+            status = "0 - Absent";
+            cssClass = "absent";
+        }
+
+        const row = document.createElement("tr");
+
+        [
+            student.index,
+            student.name,
+            student.grade,
+            date,
+            status
+        ].forEach((value, position) => {
+            const cell = document.createElement("td");
+            cell.textContent = value;
+
+            if (position === 4) {
+                cell.className = cssClass;
+            }
+
+            row.appendChild(cell);
+        });
+
+        body.appendChild(row);
+    });
+}
+
+$("refreshReport").addEventListener("click", renderReport);
+$("reportDate").addEventListener("change", renderReport);
+$("filterGrade").addEventListener("change", renderReport);
+
+
+// DOWNLOAD ONE EXCEL FILE WITH ONE SHEET
+$("downloadExcel").addEventListener("click", function() {
+    if (typeof XLSX === "undefined") {
+        showMessage(
+            "reportMessage",
+            "Excel library load වී නැහැ. Internet connection එක පරීක්ෂා කරන්න.",
+            "red"
+        );
+        return;
+    }
+
+    const list = getStudents();
+
+    if (list.length === 0) {
+        showMessage("reportMessage", "No students to export.", "red");
+        return;
+    }
+
+    const records = getAttendance();
+
+    // Collect all dates on which attendance was saved
+    const dates = [...new Set(
+        Object.entries(records).map(([key]) => {
+            return key.substring(0, key.indexOf("__"));
+        })
+    )].sort();
+
+    // Include the selected report date even if no one was marked that day
+    const selectedDate = $("reportDate").value;
+
+    if (selectedDate && !dates.includes(selectedDate)) {
+        dates.push(selectedDate);
+        dates.sort();
+    }
+
+    // Keep the selected Grade filter
+    const filter = $("filterGrade").value;
+
+    const filteredStudents = list.filter(student =>
+        filter === "all" || student.grade === filter
+    );
+
+    // One row per student, one column per date
+    const rows = filteredStudents.map(student => {
+        const row = {
+            "Index Number": student.index,
+            "Student Name": student.name,
+            "Grade": student.grade
+        };
+
+        dates.forEach(date => {
+            const key = attendanceKey(student.index, date);
+            const value = records[key];
+
+            // 1 = Present, 0 = Absent, blank = Not marked
+            row[date] = value === undefined ? "" : Number(value);
+        });
+
+        return row;
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+
+    // Set readable column widths
+    worksheet["!cols"] = [
+        { wch: 16 },
+        { wch: 28 },
+        { wch: 14 },
+        ...dates.map(() => ({ wch: 14 }))
+    ];
+
+    const workbook = XLSX.utils.book_new();
+
+    // Only one worksheet
+    XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "Attendance"
+    );
+
+    XLSX.writeFile(
+        workbook,
+        "Private_Class_Attendance.xlsx"
+    );
+
+    showMessage(
+        "reportMessage",
+        "One Excel file downloaded successfully.",
+        "green"
+    );
+});
+
+
+// Initial display
+renderReport();
+
+</script>
+</body>
+</html>
